@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zteng.moraleducation.mapper.SysUserMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.zteng.moraleducation.pojo.entity.SysUser">
+        <id column="id" property="id" />
+        <result column="username" property="username" />
+        <result column="password" property="password" />
+        <result column="email" property="email" />
+        <result column="head" property="head" />
+        <result column="enabled" property="enabled" />
+        <result column="dept_id" property="deptId" />
+        <result column="phone" property="phone" />
+        <result column="job_id" property="jobId" />
+        <result column="last_login_time" property="lastLoginTime" />
+        <result column="nick_name" property="nickName" />
+        <result column="sex" property="sex" />
+        <result column="create_time" property="createTime" />
+        <result column="modify_time" property="modifyTime" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, username, password, email, head, enabled, dept_id, phone, job_id, last_login_time, nick_name, sex, create_time, modify_time
+    </sql>
+
+</mapper>
