@@ -73,7 +73,7 @@ public class MysqlGenerator {
 
         // 数据源配置
         DataSourceConfig dsc = new DataSourceConfig();
-        dsc.setUrl("jdbc:mysql://localhost:3306/baseadmin?useUnicode=true&serverTimezone=Asia/Shanghai&useSSL=false" +
+        dsc.setUrl("jdbc:mysql://localhost:3306/base_admin?useUnicode=true&serverTimezone=Asia/Shanghai&useSSL=false" +
                 "&characterEncoding=utf8");
         // dsc.setSchemaName("public");
         dsc.setDriverName("com.mysql.cj.jdbc.Driver");

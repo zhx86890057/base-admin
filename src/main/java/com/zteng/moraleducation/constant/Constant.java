@@ -7,6 +7,6 @@ public class Constant {
 
     public static final String REDIS_PREFIX = "base:";
 
-    public static final String ALL_TREE = "allTree";
+    public static final String ALL_DEPT= "allDept";
 
 }

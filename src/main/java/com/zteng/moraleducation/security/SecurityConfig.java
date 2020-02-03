@@ -1,5 +1,7 @@
 package com.zteng.moraleducation.security;
 
+import com.zteng.moraleducation.service.ISysPermissionService;
+import com.zteng.moraleducation.service.ISysRoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -40,6 +42,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private UserDetailsService userDetailsService;
     @Autowired
     private TokenStore tokenStore;
+    @Autowired
+    private ISysPermissionService permissionService;
+    @Autowired
+    private ISysRoleService roleService;
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
@@ -111,7 +117,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public FilterInvocationSecurityMetadataSource securityMetadataSource() {
-        return new CustomSecurityMetadataSource();
+        return new CustomSecurityMetadataSource(permissionService, roleService);
     }
 
 }

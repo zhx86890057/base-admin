@@ -1,7 +1,9 @@
 package com.zteng.moraleducation.component;
 
 import com.alibaba.fastjson.JSON;
+import com.zteng.moraleducation.common.CommonResult;
 import com.zteng.moraleducation.pojo.vo.WebLog;
+import com.zteng.moraleducation.utils.IpUtils;
 import com.zteng.moraleducation.utils.RequestUtil;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections4.CollectionUtils;
@@ -24,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -59,7 +62,7 @@ public class WebLogAspect {
         HttpServletRequest request = attributes.getRequest();
         //记录请求信息
         WebLog webLog = new WebLog();
-        Object result = joinPoint.proceed();
+        CommonResult result = (CommonResult)joinPoint.proceed();
         Signature signature = joinPoint.getSignature();
         MethodSignature methodSignature = (MethodSignature) signature;
         Method method = methodSignature.getMethod();
@@ -68,16 +71,15 @@ public class WebLogAspect {
             webLog.setDescription(log.value());
         }
         long endTime = System.currentTimeMillis();
-        String urlStr = request.getRequestURL().toString();
         webLog.setBasePath(RequestUtil.getBasePath(request));
-        webLog.setIp(request.getRemoteUser());
+        webLog.setIp(IpUtils.getIpFromRequest(request));
         webLog.setMethod(request.getMethod());
         webLog.setParameter(getParameter(method, joinPoint.getArgs()));
-        webLog.setResult(JSON.toJSONString(result));
+        webLog.setResult(result);
         webLog.setSpendTime((int) (endTime - startTime));
         webLog.setStartTime(startTime);
         webLog.setUri(request.getRequestURI());
-//        webLog.setUrl(request.getRequestURL().toString());
+        webLog.setUsername(getUsername(request));
         LOGGER.info("拦截相关数据：{}", JSON.toJSONString(webLog));
         return result;
     }
@@ -122,5 +124,13 @@ public class WebLogAspect {
         } else {
             return argList;
         }
+    }
+
+    private String getUsername(HttpServletRequest request) {
+        Principal userPrincipal = request.getUserPrincipal();
+        if(userPrincipal != null){
+            return userPrincipal.getName();
+        }
+        return "";
     }
 }

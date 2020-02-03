@@ -7,17 +7,17 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zteng.moraleducation.mapper.SysJobMapper;
 import com.zteng.moraleducation.pojo.entity.SysDepartment;
 import com.zteng.moraleducation.pojo.entity.SysJob;
+import com.zteng.moraleducation.pojo.param.JobParam;
 import com.zteng.moraleducation.pojo.vo.JobVO;
 import com.zteng.moraleducation.service.ISysDepartmentService;
 import com.zteng.moraleducation.service.ISysJobService;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -35,11 +35,14 @@ public class SysJobServiceImpl extends ServiceImpl<SysJobMapper, SysJob> impleme
     private ISysDepartmentService departmentService;
 
     @Override
-    public IPage<JobVO> pageList(String name, Integer status, Integer pageNo, Integer pageSize) {
+    public IPage<JobVO> pageList(String username, JobParam jobParam) {
+        Set<Long> deptIds = departmentService.getDeptIdsByUser(username);
         QueryWrapper<SysJob> wrapper = new QueryWrapper<>();
-        wrapper.like(StringUtils.isNoneBlank(name), "name", name);
-        wrapper.eq(status != null, "status", status);
-        IPage page = this.page(new Page<>(pageNo, pageSize), wrapper);
+        wrapper.like(StringUtils.isNotBlank(jobParam.getName()), "name", jobParam.getName());
+        wrapper.eq(jobParam.getStatus() != null, "status", jobParam.getStatus());
+        wrapper.in(CollectionUtils.isNotEmpty(deptIds), "dept_id", deptIds);
+        wrapper.orderByAsc("sort");
+        IPage page = this.page(new Page<>(jobParam.getPageNo(), jobParam.getPageSize()), wrapper);
         if(page.getTotal() == 0){
             return page;
         }
@@ -57,5 +60,13 @@ public class SysJobServiceImpl extends ServiceImpl<SysJobMapper, SysJob> impleme
         }).collect(Collectors.toList());
         page.setRecords(jobVOS);
         return page;
+    }
+
+    public Map<Long, SysJob> getMapByIds(List<Long> ids) {
+        if (CollectionUtils.isNotEmpty(ids)) {
+            Collection<SysJob> sysJobs = this.listByIds(ids);
+            return sysJobs.stream().collect(Collectors.toMap(SysJob::getId, Function.identity()));
+        }
+        return Collections.emptyMap();
     }
 }

@@ -13,37 +13,41 @@
 package com.zteng.moraleducation.security;
 
 
-import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import com.google.common.collect.Lists;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
 /**
- * A pre-authentication filter for OAuth2 protected resources. Extracts an OAuth2 token from the incoming request and
- * uses it to populate the Spring Security context with an {@link OAuth2Authentication} (if used in conjunction with an
- * {@link }).
- *
- * @author Dave Syer
- *
+ * 登录的url去掉header的Authorization里面的内容
+ * 带Authorization会判断token是否过期
+ * 前端无法去除
  */
-public class CustomOAuth2AuthenticationProcessingFilter implements Filter {
+public class EraseAuthenticationFilter implements Filter {
 
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException,
             ServletException {
         final HttpServletRequest request = (HttpServletRequest) req;
         final HttpServletResponse response = (HttpServletResponse) res;
 
-        if(request.getRequestURL().toString().contains("/login/")){
-            HeaderMapRequestWrapper requestWrapper = new HeaderMapRequestWrapper(request);
-            requestWrapper.addHeader("Authorization","");
-            chain.doFilter(requestWrapper, response);
-            return;
+        List<String> filterUrl = Lists.newArrayList("/login/sendCode", "/login/phoneLogin", "/login/checkUser", "/login/teacherLogin");
+        for (String url : filterUrl) {
+            RequestMatcher requestMatcher = new AntPathRequestMatcher(url);
+            if(requestMatcher.matches(request)){
+                HeaderMapRequestWrapper requestWrapper = new HeaderMapRequestWrapper(request);
+                requestWrapper.addHeader("Authorization","");
+                chain.doFilter(requestWrapper, response);
+                return;
+            }
         }
+
         chain.doFilter(request, response);
     }
-
 
 
 }

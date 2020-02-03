@@ -1,21 +1,19 @@
 package com.zteng.moraleducation.controller;
 
 
-import com.alibaba.fastjson.JSON;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.zteng.moraleducation.common.CommonResult;
 import com.zteng.moraleducation.pojo.entity.SysDepartment;
 import com.zteng.moraleducation.pojo.entity.SysMenu;
 import com.zteng.moraleducation.pojo.vo.MenuVO;
 import com.zteng.moraleducation.service.ISysMenuService;
 import io.swagger.annotations.ApiOperation;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 /**
@@ -34,12 +32,9 @@ public class SysMenuController {
 
     @ApiOperation("查询菜单")
     @GetMapping("/list")
-    public CommonResult<List<MenuVO>> list(@RequestParam(required = false) String name){
-        QueryWrapper wrapper = new QueryWrapper();
-        wrapper.eq(StringUtils.isNoneBlank(name), "name", name);
-        List<SysMenu> menuList = menuService.list(wrapper);
-        List<MenuVO> menuVOS = JSON.parseArray(JSON.toJSONString(menuList), MenuVO.class);
-        return CommonResult.success(menuService.buildTree(menuVOS));
+    public CommonResult<List<MenuVO>> list(Principal user, @RequestParam(required = false) String name){
+        List<SysMenu> menuList = menuService.listByUsername(user.getName(), name);
+        return CommonResult.success(menuService.buildTree(menuList));
     }
 
 

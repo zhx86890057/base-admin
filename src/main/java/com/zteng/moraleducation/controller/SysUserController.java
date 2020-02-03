@@ -3,6 +3,7 @@ package com.zteng.moraleducation.controller;
 
 import com.zteng.moraleducation.common.CommonResult;
 import com.zteng.moraleducation.pojo.entity.SysUser;
+import com.zteng.moraleducation.pojo.param.UserParam;
 import com.zteng.moraleducation.pojo.vo.DepartVO;
 import com.zteng.moraleducation.service.ISysUserService;
 import io.swagger.annotations.ApiOperation;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 /**
@@ -29,8 +31,7 @@ public class SysUserController {
 
     @ApiOperation("查询用户列表")
     @GetMapping("/list")
-    public CommonResult<List<DepartVO>> getDepts(@RequestParam(required = false) String name,
-                                                 @RequestParam(required = false) Integer status){
+    public CommonResult<List<DepartVO>> getDepts(Principal user, @RequestBody UserParam userParam){
         //todo
         return CommonResult.success(null);
     }

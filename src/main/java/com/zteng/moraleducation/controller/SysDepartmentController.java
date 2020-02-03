@@ -1,7 +1,6 @@
 package com.zteng.moraleducation.controller;
 
 
-import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.zteng.moraleducation.common.CommonResult;
 import com.zteng.moraleducation.constant.Constant;
@@ -10,6 +9,7 @@ import com.zteng.moraleducation.pojo.vo.DepartVO;
 import com.zteng.moraleducation.service.ISysDepartmentService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -17,7 +17,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
+import java.util.Set;
 
 /**
  * <p>
@@ -39,13 +41,15 @@ public class SysDepartmentController {
     @ApiOperation("查询部门")
     @GetMapping("/list")
     @PreAuthorize("hasAuthority('dept:list')")
-    public CommonResult<List<DepartVO>> getDepts(@RequestParam(required = false) String name,
+    public CommonResult<List<DepartVO>> getDepts(Principal user, @RequestParam(required = false) String name,
                                                  @RequestParam(required = false) Integer status){
+        Set<Long> deptIds = departmentService.getDeptIdsByUser(user.getName());
         QueryWrapper wrapper = new QueryWrapper();
         wrapper.eq(StringUtils.isNoneBlank(name), "name", name);
+        wrapper.eq(status != null, "status", status);
+        wrapper.in(CollectionUtils.isNotEmpty(deptIds), "id", deptIds);
         List<SysDepartment> departmentList = departmentService.list(wrapper);
-        List<DepartVO> departVOS = JSON.parseArray(JSON.toJSONString(departmentList), DepartVO.class);
-        return CommonResult.success(departmentService.buildTree(departVOS));
+        return CommonResult.success(departmentService.buildTree(departmentList));
     }
 
 
@@ -53,7 +57,6 @@ public class SysDepartmentController {
     @PostMapping("/add")
     @PreAuthorize("hasAuthority('dept:add')")
     public CommonResult create(@Validated(SysDepartment.Save.class) @RequestBody SysDepartment department){
-        redisTemplate.delete(Constant.REDIS_PREFIX + Constant.ALL_TREE);
         return CommonResult.success(departmentService.save(department));
     }
 
@@ -62,7 +65,7 @@ public class SysDepartmentController {
     @PostMapping("/update")
     @PreAuthorize("hasAuthority('dept:edit')")
     public CommonResult<Boolean> update(@Validated(SysDepartment.Update.class) @RequestBody SysDepartment department){
-        redisTemplate.delete(Constant.REDIS_PREFIX + Constant.ALL_TREE);
+        redisTemplate.delete(Constant.REDIS_PREFIX + Constant.ALL_DEPT);
         return CommonResult.success(departmentService.updateById(department));
     }
 
@@ -71,6 +74,7 @@ public class SysDepartmentController {
     @PostMapping("/delete")
     @PreAuthorize("hasAuthority('dept:del')")
     public CommonResult delete(@RequestParam Long id){
+        redisTemplate.delete(Constant.REDIS_PREFIX + Constant.ALL_DEPT);
         return CommonResult.success(departmentService.deleteById(id));
     }
 }

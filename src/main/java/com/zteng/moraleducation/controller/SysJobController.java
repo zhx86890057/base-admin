@@ -4,6 +4,7 @@ package com.zteng.moraleducation.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zteng.moraleducation.common.CommonResult;
 import com.zteng.moraleducation.pojo.entity.SysJob;
+import com.zteng.moraleducation.pojo.param.JobParam;
 import com.zteng.moraleducation.pojo.vo.JobVO;
 import com.zteng.moraleducation.service.ISysJobService;
 import io.swagger.annotations.ApiOperation;
@@ -11,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
 
 /**
  * <p>
@@ -28,11 +31,8 @@ public class SysJobController {
 
     @ApiOperation("查询岗位列表")
     @GetMapping("/list")
-    public CommonResult<IPage<JobVO>> getJobs(@RequestParam(required = false) String name,
-                                              @RequestParam(required = false) Integer status,
-                                              @RequestParam(defaultValue = "1") Integer pageNo,
-                                              @RequestParam(defaultValue = "10")Integer pageSize){
-        return CommonResult.success(null);
+    public CommonResult<IPage<JobVO>> getJobs(Principal user, @RequestBody JobParam jobParam){
+        return CommonResult.success(jobService.pageList(user.getName(), jobParam));
     }
 
 

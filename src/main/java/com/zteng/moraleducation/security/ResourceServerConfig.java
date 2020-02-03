@@ -47,14 +47,15 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
             .requestMatchers()
             //防止被主过滤器链路拦截
             .antMatchers("/login/**").and()
-            .authorizeRequests().anyRequest().permitAll();
+                .authorizeRequests().antMatchers("/login/loginPwd", "/login/loginClient").permitAll().and()
+                .authorizeRequests().anyRequest().authenticated();
 
         CustomFilterSecurityIntercepor fsi = new CustomFilterSecurityIntercepor();
         fsi.setAccessDecisionManager(customAccessDecisionManager);
         fsi.setSecurityMetadataSource(securityMetadataSource);
         http.addFilterAfter(fsi, FilterSecurityInterceptor.class);
 
-        CustomOAuth2AuthenticationProcessingFilter f = new CustomOAuth2AuthenticationProcessingFilter();
+        EraseAuthenticationFilter f = new EraseAuthenticationFilter();
         http.addFilterBefore(f, AbstractPreAuthenticatedProcessingFilter.class);
 
     }

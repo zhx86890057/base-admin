@@ -25,14 +25,14 @@ public class SysRoleMenuRelation implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @TableId(value = "id", type = IdType.AUTO)
-    private Integer id;
+    @TableId(value = "id", type = IdType.ID_WORKER)
+    private Long id;
 
     @ApiModelProperty(value = "菜单ID")
-    private Integer menuId;
+    private Long menuId;
 
     @ApiModelProperty(value = "角色ID")
-    private Integer roleId;
+    private Long roleId;
 
 
 }
